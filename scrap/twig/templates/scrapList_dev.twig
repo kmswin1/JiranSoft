@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css" />
+    <style type="text/css">
+        body {padding:10px;}
+        .meta .ui.label {margin-top:5px;}
+        #float_button {
+            position: fixed;
+            right:10px;
+            bottom: 20px;
+            z-index: 1000;
+        }
+        .card .desc {
+            margin-bottom:40px !important;
+        }
+        .card .description {
+            max-height:100px;
+            overflow: hidden;
+        }
+        .ui.divider {
+            margin:40px 0;
+        }
+        .buttons {
+            bottom:40px;position:absolute;margin-bottom:10px;
+        }
+        .summary {
+            display: -webkit-box; /* 블록을 임의의 배치 순서로 변경할 수 있게 해줌 */
+            -webkit-line-clamp: 3; /* 라인수 */
+            -webkit-box-orient: vertical; /* 박스의 흐름의 방향을 지정 */
+        }
+        .item .content {
+            padding-left:10px !important;
+        }
+    </style>
+</head>
+<body>
+<div class="ui container">
+    <h2 class="ui header">Recents</h2>
+    <div id="lists" class="ui three stackable cards">
+{% for item in scrap_list %}
+        <div id="{{ item.book_id}}" class="card">
+            <div class="content title">
+                <div class="header">{{ item.book_title }}</div>
+            </div>
+            <div class="image">
+                <img class="thumbnail" src="https://platform.ondana.jp/resources/thumbnails/cover_{{ item.THUMBNAIL_FILEID }}.jpg" border="1" style="cursor:pointer" data-link="https://{{ item.DOMAIN }}/books/{{ item.book_id }}" />
+            </div>
+            <div class="content desc">
+                <div class="description">
+                    {{ item.SUMMARY }}
+                </div>
+                <div class="meta">
+                    {% for tag in item.TAGS %}
+                        <div class='ui label'>{{ tag }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="extra content">
+                <div class="buttons">
+                    <div class="instagram ui fluid button centered btn-detail" style="width:100px;display: inline-block;">詳細</div>
+                    <div class="instagram ui fluid button centered btn-read" style="width:100px;display: inline-block">読む</div>
+                    <div class="negative ui fluid button centered btn-delete" style="width:100px;display: inline-block">削除</div>
+                </div>
+                <span class="right floated">
+                    {{ item.added_at}}
+                </span>
+                <span>
+                    <i class="user icon"></i>
+                </span>
+            </div>
+        </div>
+        <div class="ui divider"></div>
+{% endfor %}
+    </div>
+
+    <div class="ui divided unstackable items">
+{% for item in scrap_list %}
+        <div class="item">
+            <div style="width:85px">
+                <img class="thumbnail" src="https://platform.ondana.jp/resources/thumbnails/cover_{{ item.THUMBNAIL_FILEID }}.jpg" border="1" style="cursor:pointer;width:85px !important;" data-link="https://{{ item.DOMAIN }}/books/{{ item.book_id }}" />
+            </div>
+            <div class="middle aligned content">
+                <a class="header">{{ item.book_title }}</a>
+                <div class="meta">
+                    <span class="summary">{{ item.SUMMARY[:102] }}</span>
+                </div>
+                <div class="instagram ui fluid button centered btn-detail" style="width:100px;display: inline-block;">詳細</div>
+                <div class="instagram ui fluid button centered btn-read" style="width:100px;display: inline-block">読む</div>
+                <span class="left floated">
+                    {{ item.added_at}}
+                </span>
+            </div>
+        </div>
+{% endfor %}
+    </div>
+</div>
+
+<div id="float_button" class="ui circular icon green floated left pointing dropdown button">
+    <i class="vertically flipped large magic icon"></i>
+    <div class="menu">
+        <div class="header">
+        </div>
+        <div class="divider"></div>
+        <div class="item trusted" data-value="TRUSTED">
+            <i class="icon green tags"></i>
+            <span>aaaa</span>
+        </div>
+        <div class="item new" data-value="NEW">
+            <i class="icon yellow tags"></i>
+            <span>bbb</span>
+        </div>
+        <div class="item blocked" data-value="THREAT">
+            <i class="icon red tags"></i>
+            <span>ccc</span>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.js"></script>
+<script type="text/javascript">
+    var curId = '';
+    $(function () {
+        $('.ui.dropdown').dropdown();
+        // $('#'+curId).transition('glow','5000ms');
+        $("#float_button").dropdown('setting', 'onChange', function (value, text) {
+            // $("#lists").removeClass("stackable");
+        });
+
+        $('.thumbnail').click(function() {
+            window.open($(this).data('link'));
+        });
+
+        $('.thumbnail').click(function() {
+            window.open($(this).data('link'));
+        });
+    });
+</script>
+</body>
+</html>

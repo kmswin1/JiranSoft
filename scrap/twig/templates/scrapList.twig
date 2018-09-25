@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css" />
+    <style type="text/css">
+        body {padding:10px;}
+        .meta .ui.label {margin-top:5px;}
+        .ui.three.cards > .card {
+            width:calc(33.3333333333% - 2em);
+        }
+        #float_button {
+            position: fixed;
+            right:10px;
+            bottom: 20px;
+            z-index: 1000;
+        }
+        .card .desc {
+            margin-bottom:40px !important;
+        }
+        .card .description {
+            max-height:100px;
+            overflow: hidden;
+        }
+        .ui.divider {
+            margin:40px 0;
+        }
+        .buttons {
+            bottom:40px;position:absolute;margin-bottom:10px;
+            width:92%;
+        }
+        .summary {
+            display: -webkit-box; /* 블록을 임의의 배치 순서로 변경할 수 있게 해줌 */
+            -webkit-line-clamp: 3; /* 라인수 */
+            -webkit-box-orient: vertical; /* 박스의 흐름의 방향을 지정 */
+        }
+        .item .content {
+            padding-left:10px !important;
+        }
+    </style>
+</head>
+<body>
+<div class="ui container">
+    <h2 class="ui header">Recents</h2>
+    <div id="lists" class="ui three stackable cards">
+{% for item in scrap_list %}
+        <div id="{{ item.book_id}}" data-domain="{{ item.DOMAIN }}" class="card">
+            <div class="content title">
+                <div class="header">{{ item.book_title }}</div>
+            </div>
+            <div class="image">
+                <img class="thumbnail" src="https://platform.ondana.jp/resources/thumbnails/cover_{{ item.THUMBNAIL_FILEID }}.jpg" border="1" style="cursor:pointer" />
+            </div>
+            <div class="content desc">
+                <div class="description">
+                    {{ item.SUMMARY }}
+                    {{ item.SUMMARY|length > 15 ? item.SUMMARY|slice(0, 15) ~ '…' : item.SUMMARY }}
+                </div>
+                <div class="meta">
+                    {% for tag in item.TAGS %}
+                        <div class='ui label'>{{ tag }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="extra content">
+                <div class="buttons">
+                    <div style="float:left">
+                        <div class="tiny instagram ui button btn-read" style="display: inline-block">読む</div>
+                        <div class="tiny instagram ui button btn-detail" style="display: inline-block;">詳細</div>
+                    </div>
+                        <div style="float:right" class="tiny negative ui button btn-delete" style="display: inline-block">削除</div>
+                </div>
+                <span class="right floated">
+                    {{ item.added_ago}}
+                </span>
+                <span>
+<!--                    <i class="user icon"></i>-->
+                    {{ item.scrap_cnt}}回スクラップ
+                </span>
+            </div>
+        </div>
+        <div class="ui divider"></div>
+{% endfor %}
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.js"></script>
+<script type="text/javascript">
+    var curId = '';
+    $(function () {
+        var siteDomain = '{{ constant("SITE_DOMAIN") }}';
+        $('.ui.dropdown').dropdown();
+        // $('#'+curId).transition('glow','5000ms');
+        $("#float_button").dropdown('setting', 'onChange', function (value, text) {
+            // $("#lists").removeClass("stackable");
+        });
+
+        $('.thumbnail, .btn-detail').click(function() {
+            var bookId = $(this).parents(".card").attr("id");
+            var domain = $(this).parents(".card").data('domain');
+            window.open('//'+domain+'/books/'+bookId);
+        });
+
+        $('.btn-read').click(function() {
+            var bookId = $(this).parents(".card").attr("id");
+            window.open('//platform.ondana.jp/crossviewer/items/'+bookId+'/');
+        });
+
+        $('.btn-delete').click(function() {
+            if (confirm('削除しますか？')) {
+            var bookId = $(this).parents(".card").attr("id");
+                $.ajax({
+                    url: '/app/item.php',
+                    method: 'DELETE',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({ 'book-id': bookId }),
+                }).done(function (response) {
+                    $("#"+bookId).remove();
+
+                    console.log(response);
+                });
+            }
+        });
+    });
+
+</script>
+</body>
+</html>
