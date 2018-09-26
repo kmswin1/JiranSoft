@@ -5,20 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <style type="text/css">
         body {padding:10px;}
-        .buttons {
-            bottom:0%;position:absolute;margin-bottom:0px;
-            width:70%;
-        }
-        .summary {
-            display: -webkit-box; /* 블록을 임의의 배치 순서로 변경할 수 있게 해줌 */
-            -webkit-line-clamp: 3; /* 라인수 */
-            -webkit-box-orient: vertical; /* 박스의 흐름의 방향을 지정 */
-        }
-        .item .content {
-            padding-left:10px !important;
-        }
+
     </style>
 </head>
 <body>
@@ -27,59 +18,69 @@
         <div id="lists" class="ui grid container">
             {% for item in scrap_list %}
             <div class="four wide column">
-                <div id="{{ item.book_id}}" data-domain="{{ item.DOMAIN }}" class="card">
-                    <img class="thumbnail" src="https://platform.ondana.jp/resources/thumbnails/cover_{{ item.THUMBNAIL_FILEID }}.jpg" border="1" style="cursor:pointer; width: 30%; height: 30%" />
-                    <div class="buttons">
-                        <div style="float:left">
-                            <div class="tiny instagram ui button btn-read" style="display: inline-block">読む</div>
-                            <div class="tiny instagram ui button btn-detail" style="display: inline-block;">詳細</div>
-                        </div>
-                            <div style="float:right" class="tiny negative ui button btn-delete" style="display: inline-block">削除</div>
+                    <div id="{{ item.book_id }}" data-domain="{{ item.DOMAIN }}" class="card">
+                        <img class="thumbnail" src="https://platform.ondana.jp/resources/thumbnails/cover_{{ item.THUMBNAIL_FILEID }}.jpg" border="1" style="cursor:pointer; width: 100%; height: 50%" />
                     </div>
-                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 
+<div class="ui mini modal">
+  <div class="ui icon header">
+    <i class="archive icon"></i>
+    what you want to do ?
+  </div>
+  <div class="actions">
+    <div id="read" class="ui green ok inverted button">
+      <i class="book icon"></i>
+    </div>
+    <div id="detail" class="ui green ok inverted button">
+      <i class="sistrix icon"></i>
+    </div>
+    <div id="delete" class="ui green ok inverted button">
+      <i class="trash icon"></i>
+    </div>
+    <div class="ui green ok inverted button">
+      Exit
+    </div>
+  </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.3/semantic.min.js"></script>
 <script type="text/javascript">
-    var curId = '';
-    $(function () {
-        var siteDomain = '{{ constant("SITE_DOMAIN") }}';
+        var curId = '';
+        $(function () {
         $('.ui.dropdown').dropdown();
         // $('#'+curId).transition('glow','5000ms');
         $("#float_button").dropdown('setting', 'onChange', function (value, text) {
             // $("#lists").removeClass("stackable");
         });
-
-        $('.thumbnail, .btn-detail').click(function() {
+        $('.thumbnail').click(function() {
+            $('.ui.mini.modal').modal('show');
             var bookId = $(this).parents(".card").attr("id");
             var domain = $(this).parents(".card").data('domain');
-            window.open('//'+domain+'/books/'+bookId);
-        });
-
-        $('.btn-read').click(function() {
-            var bookId = $(this).parents(".card").attr("id");
-            window.open('//platform.ondana.jp/crossviewer/items/'+bookId+'/');
-        });
-
-        $('.btn-delete').click(function() {
-            if (confirm('削除しますか？')) {
-            var bookId = $(this).parents(".card").attr("id");
-                $.ajax({
-                    url: '/app/item.php',
-                    method: 'DELETE',
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    data: JSON.stringify({ 'book-id': bookId }),
-                }).done(function (response) {
-                    $("#"+bookId).remove();
-                    location.reload();
-                    console.log(response);
-                });
-            }
+            $("#read").click(function() {
+                window.open('//platform.ondana.jp/crossviewer/items/'+bookId+'/');
+            })
+            $("#detail").click(function() {
+                window.open('//'+domain+'/books/'+bookId);
+            })
+            $("#delete").click(function() {
+                if (confirm('削除しますか？')) {
+                        $.ajax({
+                            url: '/app/item.php',
+                            method: 'DELETE',
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json',
+                            data: JSON.stringify({ 'book-id': bookId }),
+                            }).done(function (response) {
+                            $("#"+bookId).remove();
+                            location.reload();
+                            console.log(response);
+                        });
+                }
+            })
         });
     });
 
